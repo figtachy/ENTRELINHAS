@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrelinhas - Metas de Leitura</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .book-card {
+            transition: all 0.3s ease;
+            perspective: 1000px;
+        }
+
+        .book-card:hover {
+            transform: scale(1.05) rotateY(5deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .book-selected {
+            border: 3px solid #10b981;
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+            transform: scale(1.05) translateZ(20px);
+        }
+
+        .book-progress-img {
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #10b981; 
+            border-radius: 10px;
+        }
+
+        .goal-info-tooltip {
+            position: relative;
+        }
+
+        .goal-info-tooltip .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #10b981;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 10px;
+            width: 250px;
+        }
+
+        .goal-info-tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen flex items-center justify-center">
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <div class="bg-white rounded-2xl shadow-2xl p-8 border-4 border-green-100">
+            <div class="flex items-center justify-between mb-8">
+                <h1 class="text-4xl font-extrabold text-green-800 flex items-center">
+                    📚 Entrelinhas 
+                    <span class="ml-3 text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">Metas de Leitura</span>
+                </h1>
+                <div class="goal-info-tooltip">
+                    <i class="fas fa-info-circle text-green-600 text-2xl cursor-help"></i>
+                    <div class="tooltip-text">
+                        Selecione sua meta de leitura, escolha os livros e acompanhe seu progresso de forma simples e divertida!
+                    </div>
+                </div>
+            </div>
+
+            <a href="biblioteca.html">
+                <button id="backLibraryBtn" class="flex items-center bg-blue-500 text-white px-5 py-2.5 rounded-lg hover:bg-blue-600 transition group shadow-lg">
+                    <i fas fa-book mr-2 group-hover:animate-bounce"></i>
+                    Biblioteca
+                </button>
+            </a>
+            <!-- Meta Configuration -->
+            <div id="goal-config" class="mb-8">
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-green-700 font-bold mb-2 flex items-center">
+                            <i class="fas fa-calendar-alt mr-2"></i>Tempo para Completar Meta
+                        </label>
+                        <select id="goal-duration" class="w-full p-3 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-300 transition">
+                            <option value="30">1 Mês</option>
+                            <option value="90">3 Meses</option>
+                            <option value="180">6 Meses</option>
+                            <option value="365">1 Ano</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-green-700 font-bold mb-2 flex items-center">
+                            <i class="fas fa-book mr-2"></i>Número de Livros na Meta
+                        </label>
+                        <input type="number" id="book-count" min="1" max="20" 
+                            class="w-full p-3 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-300 transition" 
+                            placeholder="Quantos livros deseja ler?">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="mb-8">
+                <div class="relative">
+                    <input type="text" id="book-search" 
+                        class="w-full p-4 pl-10 border-2 border-green-300 rounded-lg focus:ring-2 focus:ring-green-300 transition" 
+                        placeholder="🔍 Pesquisar livros por título, autor ou gênero">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500"></i>
+                </div>
+            </div>
+
+            <!-- Book Grid -->
+            <div id="book-grid" class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6 custom-scrollbar max-h-[500px] overflow-y-auto">
+                <!-- Books will be dynamically populated here -->
+            </div>
+
+            <!-- Selected Books and Progress -->
+            <div id="goal-summary" class="mt-8 hidden">
+                <div class="bg-green-50 p-6 rounded-lg">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold text-green-800">Progresso da Meta</h2>
+                        <div class="flex items-center">
+                            <span id="books-read" class="text-green-600 font-bold mr-1">0</span>
+                            <span class="text-gray-600">de</span>
+                            <span id="total-books" class="text-green-600 font-bold ml-1">0</span>
+                            <span class="text-gray-600 ml-2">livros</span>
+                        </div>
+                    </div>
+                    <div class="w-full bg-green-200 rounded-full h-4 mb-4 overflow-hidden">
+                        <div id="progress-bar" class="bg-green-600 h-4 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div id="selected-books-list" class="mt-4 grid grid-cols-3 md:grid-cols-5 gap-4">
+                        <!-- Selected books will appear here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  
+    <script>
+        // Retrieve books from localStorage
+        function getBooks() {
+            return JSON.parse(localStorage.getItem('entrelinhasBooks') || '[]');
+        }
+
+        // Render Book Grid
+        function renderBookGrid() {
+            const bookGrid = document.getElementById('book-grid');
+            const searchInput = document.getElementById('book-search');
+            const books = getBooks();
+
+            bookGrid.innerHTML = books
+                .filter(book => {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    return (
+                        book.title.toLowerCase().includes(searchTerm) ||
+                        book.author.toLowerCase().includes(searchTerm) ||
+                        book.genre.toLowerCase().includes(searchTerm)
+                    );
+                })
+                .map(book => `
+                    <div class="book-card cursor-pointer bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-all" 
+                         data-id="${book.id}">
+                        <img src="${book.cover}" alt="${book.title}" 
+                             class="w-full h-64 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg">${book.title}</h3>
+                            <p class="text-gray-600">${book.author}</p>
+                            <p class="text-sm text-green-600">${book.genre}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+            // Add click event to book cards
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.addEventListener('click', selectBook);
+            });
+        }
+
+        // Book Selection Logic
+        const selectedBooks = new Set();
+        function selectBook(event) {
+            const bookCard = event.currentTarget;
+            const bookId = bookCard.getAttribute('data-id');
+            const goalDuration = document.getElementById('goal-duration').value;
+            const bookCount = document.getElementById('book-count').value;
+
+            if (selectedBooks.has(bookId)) {
+                selectedBooks.delete(bookId);
+                bookCard.classList.remove('book-selected');
+            } else if (selectedBooks.size < bookCount) {
+                selectedBooks.add(bookId);
+                bookCard.classList.add('book-selected');
+            } else {
+                alert(`Você pode selecionar no máximo ${bookCount} livros.`);
+                return;
+            }
+
+            updateGoalSummary();
+        }
+
+        // Update Goal Summary
+        function updateGoalSummary() {
+            const goalSummary = document.getElementById('goal-summary');
+            const selectedBooksList = document.getElementById('selected-books-list');
+            const progressBar = document.getElementById('progress-bar');
+            const booksReadSpan = document.getElementById('books-read');
+            const totalBooksSpan = document.getElementById('total-books');
+
+            const books = getBooks();
+            const selectedBooksDetails = Array.from(selectedBooks).map(bookId => 
+                books.find(book => book.id.toString() === bookId)
+            );
+
+            if (selectedBooksDetails.length > 0) {
+                goalSummary.classList.remove('hidden');
+                
+                selectedBooksList.innerHTML = selectedBooksDetails.map(book => `
+                    <div class="relative">
+                        <img src="${book.cover}" alt="${book.title}" 
+                             class="w-full rounded-lg opacity-50 book-progress-img" 
+                             data-id="${book.id}">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <input type="checkbox" 
+                                   class="book-progress-check w-6 h-6 text-green-600" 
+                                   data-id="${book.id}">
+                        </div>
+                    </div>
+                `).join('');
+
+                // Add progress tracking
+                document.querySelectorAll('.book-progress-check').forEach(checkbox => {
+                    checkbox.addEventListener('change', updateProgress);
+                });
+            } else {
+                goalSummary.classList.add('hidden');
+            }
+
+            totalBooksSpan.textContent = selectedBooks.size;
+        }
+
+        // Update Reading Progress
+        function updateProgress() {
+            const checkedBooks = document.querySelectorAll('.book-progress-check:checked');
+            const progressBar = document.getElementById('progress-bar');
+            const booksReadSpan = document.getElementById('books-read');
+            
+            const progressPercentage = (checkedBooks.length / selectedBooks.size) * 100;
+            progressBar.style.width = `${progressPercentage}%`;
+            booksReadSpan.textContent = checkedBooks.length;
+
+            // Update book images
+            document.querySelectorAll('.book-progress-img').forEach(img => {
+                const checkbox = img.nextElementSibling.querySelector('.book-progress-check');
+                img.classList.toggle('opacity-50', !checkbox.checked);
+            });
+        }
+
+        // Event Listeners
+        document.getElementById('book-search').addEventListener('input', renderBookGrid);
+        document.getElementById('goal-duration').addEventListener('change', updateGoalSummary);
+        document.getElementById('book-count').addEventListener('change', () => {
+            selectedBooks.clear();
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.classList.remove('book-selected');
+            });
+            updateGoalSummary();
+        });
+
+        // Initial Render
+        renderBookGrid();
+    </script>
+</body>
+</html>

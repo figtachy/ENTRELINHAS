@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrelinhas - Painel Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-green-800 text-white p-6">
+            <h1 class="text-2xl font-bold mb-10">Painel Admin</h1>
+            <nav>
+                <ul>
+                    <li class="mb-4">
+                        <a href="#usuarios" class="flex items-center hover:bg-green-700 p-2 rounded" data-section="usuarios">
+                            <i class="fas fa-users mr-3"></i> Usuários
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#livros" class="flex items-center hover:bg-green-700 p-2 rounded" data-section="livros">
+                            <i class="fas fa-book mr-3"></i> Cadastrar Livro
+                        </a>
+                    </li>
+                    <li class="mb-4">
+                        <a href="#lista-livros" class="flex items-center hover:bg-green-700 p-2 rounded" data-section="lista-livros">
+                            <i class="fas fa-list mr-3"></i> Lista de Livros
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html" class="flex items-center hover:bg-green-700 p-2 rounded">
+                            <i class="fas fa-sign-out-alt mr-3"></i> Sair
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-10">
+            <!-- Usuários Section -->
+            <section id="usuarios-section" class="section-content">
+                <h2 class="text-3xl font-bold mb-6 text-green-800">Usuários Cadastrados</h2>
+                <div id="usuarios-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Usuários serão adicionados dinamicamente via JS -->
+                </div>
+            </section>
+
+            <!-- Cadastrar Livro Section -->
+            <section id="livros-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-6 text-green-800">Cadastrar Novo Livro</h2>
+                <form id="book-form" class="bg-white p-8 rounded-lg shadow-md">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-gray-700 mb-2">Título</label>
+                            <input type="text" id="book-title" required class="w-full px-4 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Autor</label>
+                            <input type="text" id="book-author" required class="w-full px-4 py-2 border rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">Gênero</label>
+                            <select id="book-genre" class="w-full px-4 py-2 border rounded-lg">
+                                <option>Ficção</option>
+<option>Não Ficção</option>
+<option>Romance</option>
+<option>Fantasia</option>
+<option>Ficção Científica</option>
+                        <option>Terror</option>
+                        <option>Mistério</option>
+                        <option>Policial</option>
+                        <option>Romance - Drama</option>
+                        <option>Romance - Aventura</option>
+                        <option>Romance - Histórico</option>
+                        <option>Romance - Psicológico</option>
+                        <option>Romance de Mistério</option>
+                        <option>LGBT</option>
+                        <option>Suspense</option>
+                        <option>Adolescente</option>
+                        <option>Juvenil</option>
+                        <option>Infantil</option>
+                        <option>Biografia</option>
+                        <option>Autobiografia</option>
+                        <option>Memórias</option>
+                        <option>Ensaios</option>
+                        <option>Autoajuda</option>
+                        <option>História</option>
+                        <option>Filosofia</option>
+                        <option>Poesia</option>
+                        <option>Teatro</option>
+                        <option>Tragédia</option>
+                        <option>Comédia</option>
+                        <option>Drama</option>
+                        <option>Graphic Novel</option>
+                        <option>Quadrinhos</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 mb-2">URL da Capa</label>
+                            <input type="url" id="book-cover" class="w-full px-4 py-2 border rounded-lg">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-gray-700 mb-2">Descrição</label>
+                            <textarea id="book-description" class="w-full px-4 py-2 border rounded-lg" rows="4"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" class="mt-6 w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">
+                        Cadastrar Livro
+                    </button>
+                </form>
+            </section>
+
+            <!-- Lista de Livros Section -->
+            <section id="lista-livros-section" class="section-content hidden">
+                <h2 class="text-3xl font-bold mb-6 text-green-800">Lista de Livros</h2>
+                <div id="book-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Livros serão adicionados dinamicamente via JS -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Navigation Logic
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const sectionId = link.getAttribute('data-section');
+                
+                // Hide all sections
+                document.querySelectorAll('.section-content').forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Show selected section
+                document.getElementById(`${sectionId}-section`).classList.remove('hidden');
+            });
+        });
+
+        // Book Registration Logic
+        document.getElementById('book-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const book = {
+                id: Date.now(),
+                title: document.getElementById('book-title').value,
+                author: document.getElementById('book-author').value,
+                genre: document.getElementById('book-genre').value,
+                cover: document.getElementById('book-cover').value || 'https://via.placeholder.com/200x300',
+                description: document.getElementById('book-description').value
+            };
+
+            // Get existing books or initialize empty array
+            const books = JSON.parse(localStorage.getItem('entrelinhasBooks') || '[]');
+            books.push(book);
+            
+            // Save updated books
+            localStorage.setItem('entrelinhasBooks', JSON.stringify(books));
+
+            // Reset form
+            this.reset();
+
+            // Refresh book list
+            renderBookList();
+            alert('Livro cadastrado com sucesso!');
+        });
+
+        // Render User List
+        function renderUserList() {
+            const userList = document.getElementById('usuarios-list');
+            const users = JSON.parse(localStorage.getItem('entrelinhasUsers') || '[]');
+
+            userList.innerHTML = users.map(user => `
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-bold mb-2">${user.name}</h3>
+                    <p class="text-gray-600">${user.email}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render Book List
+        function renderBookList() {
+            const bookList = document.getElementById('book-list');
+            const books = JSON.parse(localStorage.getItem('entrelinhasBooks') || '[]');
+
+            bookList.innerHTML = books.map(book => `
+                <div class="bg-white rounded-lg overflow-hidden shadow-md">
+                    <img src="${book.cover}" alt="${book.title}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold">${book.title}</h3>
+                        <p class="text-gray-600">${book.author}</p>
+                        <p class="text-sm text-gray-500 mt-2">${book.genre}</p>
+                        <button onclick="deleteBook(${book.id})" class="mt-2 bg-red-500 text-white px-3 py-1 rounded">Excluir</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Delete Book
+        function deleteBook(bookId) {
+            let books = JSON.parse(localStorage.getItem('entrelinhasBooks') || '[]');
+            books = books.filter(book => book.id !== bookId);
+            localStorage.setItem('entrelinhasBooks', JSON.stringify(books));
+            renderBookList();
+        }
+
+        // Initial Render
+        renderUserList();
+        renderBookList();
+    </script>
+</body>
+</html>

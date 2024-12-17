@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrelinhas - Biblioteca</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/biblioteca.css">
+</head>
+<body class="min-h-screen bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12 bg-white rounded-3xl shadow-xl p-6 border-b-4 border-blue-500">
+            <div class="flex items-center space-x-4">
+                <div class="bg-blue-500 text-white p-3.5 rounded-full shadow-md">
+                    <i class="fas fa-book-open text-2xl"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-800">Entrelinhas</h1>
+            </div>
+            <div class="flex space-x-4">
+                <button id="forumBtn" class="flex items-center bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition-all group shadow-lg hover:shadow-xl">
+                    <i class="fas fa-comments mr-3 group-hover:animate-pulse"></i>
+                    Fórum
+                </button>
+                <button id="metasBtn" class="flex items-center bg-purple-500 text-white px-6 py-3 rounded-xl hover:bg-purple-600 transition-all group shadow-lg hover:shadow-xl">
+                    <i class="fas fa-bullseye mr-3 group-hover:animate-pulse"></i>
+                    Metas
+                </button>
+
+                <button id="logoutBtn" class="flex items-center bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 transition-all group shadow-lg hover:shadow-xl">
+                    <i class="fas fa-sign-out-alt mr-3 group-hover:animate-bounce"></i>
+                    Sair
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="bg-white rounded-3xl shadow-2xl p-8 border-t-8 border-blue-500">
+            <!-- Tabs Navigation -->
+            <nav class="flex justify-center mb-10 bg-gray-100 rounded-full p-2 space-x-2">
+                <button data-tab="todosLivros" class="tab-btn tab-button px-6 py-3 flex items-center text-gray-700 hover:text-white rounded-xl transition-all">
+                    <i class="fas fa-book mr-2"></i>Todos os Livros
+                </button>
+                <button data-tab="lendo" class="tab-btn tab-button px-6 py-3 flex items-center text-gray-700 hover:text-white rounded-xl transition-all">
+                    <i class="fas fa-bookmark mr-2"></i>Lendo
+                </button>
+                <button data-tab="lidos" class="tab-btn tab-button px-6 py-3 flex items-center text-gray-700 hover:text-white rounded-xl transition-all">
+                    <i class="fas fa-check-circle mr-2"></i>Lidos
+                </button>
+                <button data-tab="queroLer" class="tab-btn tab-button px-6 py-3 flex items-center text-gray-700 hover:text-white rounded-xl transition-all">
+                    <i class="fas fa-list mr-2"></i>Quero Ler
+                </button>
+                <button data-tab="favoritos" class="tab-btn tab-button px-6 py-3 flex items-center text-gray-700 hover:text-white rounded-xl transition-all">
+                    <i class="fas fa-heart mr-2"></i>Favoritos
+                </button>
+            </nav>
+
+            <!-- Search Section -->
+            <div class="mb-10">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Pesquisar livros por título, autor ou gênero..." 
+                        class="w-full px-6 py-4 border-2 border-blue-200 rounded-full focus:outline-none focus:ring-4 focus:ring-blue-300 text-gray-700 transition custom-scrollbar"
+                    >
+                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 text-blue-400">
+                        <i class="fas fa-search text-xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Books Grid -->
+            <div id="bookGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 custom-scrollbar"></div>
+        </main>
+    </div>
+
+    <!-- Book Details Modal -->
+    <div id="bookModal" class="fixed inset-0 modal-overlay z-50 hidden flex items-center justify-center p-6">
+        <div class="bg-white rounded-3xl overflow-hidden shadow-2xl max-w-4xl w-full max-h-[90vh] transform transition-all border-t-8 border-blue-500">
+            <div id="bookModalContent" class="p-8 custom-scrollbar overflow-y-auto"></div>
+            <div class="bg-gray-100 p-6 text-right">
+                <button id="closeModal" class="bg-red-500 text-white px-8 py-3 rounded-lg hover:bg-red-600 transition flex items-center justify-center">
+                    <i class="fas fa-times mr-2"></i>Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('forumBtn').addEventListener('click', function() {
+            window.location.href = 'forum.html';
+        });
+
+        document.getElementById('metasBtn').addEventListener('click', function() {
+            window.location.href = 'meta.html';
+        });
+
+       
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            alert('Você foi desconectado!');
+            window.location.href = 'index.html';
+        });
+
+        const books = JSON.parse(localStorage.getItem('entrelinhasBooks') || '[]');
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        const userLibrary = JSON.parse(localStorage.getItem('userLibrary') || '{}');
+
+        if (!userLibrary[currentUser.email]) {
+            userLibrary[currentUser.email] = {
+                lendo: [],
+                lidos: [],
+                queroLer: [],
+                favoritos: []
+            };
+        }
+
+        const tabButtons = document.querySelectorAll('.tab-btn');
+        const bookGrid = document.getElementById('bookGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(btn => btn.classList.remove('tab-active'));
+                button.classList.add('tab-active');
+                const tab = button.dataset.tab;
+                renderBooks(tab);
+            });
+        });
+
+        function renderBooks(tab = 'todosLivros') {
+            let displayBooks = [];
+
+            if (tab === 'todosLivros') {
+                displayBooks = books;
+            } else {
+                displayBooks = userLibrary[currentUser.email][tab] || [];
+            }
+
+            const searchTerm = searchInput.value.toLowerCase();
+            displayBooks = displayBooks.filter(book => 
+                book.title.toLowerCase().includes(searchTerm) || 
+                book.author.toLowerCase().includes(searchTerm)
+            );
+
+            bookGrid.innerHTML = displayBooks.map(book => 
+                `<div class="bg-white rounded-xl overflow-hidden shadow-md book-card relative" data-id="${book.id}">
+                    <img src="${book.cover}" alt="${book.title}" class="w-full h-64 object-cover">
+                    <button class="absolute top-4 right-4 text-gray-400 hover:text-red-500" onclick="toggleFavorite(${book.id}, event)">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                    <div class="p-4">
+                        <h3 class="text-lg font-bold truncate text-gray-800">${book.title}</h3>
+                        <p class="text-gray-600 text-sm mb-4">${book.author}</p>
+                    </div>
+                </div>`
+            ).join('');
+
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.addEventListener('click', event => {
+                    if (!event.target.closest('button')) {
+                        showBookDetails(card.dataset.id);
+                    }
+                });
+            });
+        }
+
+        function toggleFavorite(bookId, event) {
+            event.stopPropagation();
+            const userEmail = currentUser.email;
+            const book = books.find(b => b.id == bookId);
+            const favorites = userLibrary[userEmail].favoritos;
+
+            const index = favorites.findIndex(b => b.id === bookId);
+            if (index >= 0) {
+                favorites.splice(index, 1);
+            } else {
+                favorites.push(book);
+            }
+
+            localStorage.setItem('userLibrary', JSON.stringify(userLibrary));
+            event.target.classList.toggle('text-red-500');
+        }
+
+        function moveBook(shelf, bookId) {
+            const book = books.find(b => b.id == bookId);
+            const userEmail = currentUser.email;
+
+            ['lendo', 'lidos', 'queroLer', 'favoritos'].forEach(s => {
+                userLibrary[userEmail][s] = userLibrary[userEmail][s].filter(b => b.id !== bookId);
+            });
+
+            if (!userLibrary[userEmail][shelf]) {
+                userLibrary[userEmail][shelf] = [];
+            }
+
+            if (!userLibrary[userEmail][shelf].some(b => b.id === bookId)) {
+                userLibrary[userEmail][shelf].push(book);
+            }
+
+            localStorage.setItem('userLibrary', JSON.stringify(userLibrary));
+
+            const activeTab = document.querySelector('.tab-btn.tab-active').dataset.tab;
+            renderBooks(activeTab);
+
+            alert(`Livro movido para: ${shelf}`);
+        }
+
+        function showBookDetails(bookId) {
+            const book = books.find(b => b.id == bookId);
+            const modal = document.getElementById('bookModal');
+            const modalContent = document.getElementById('bookModalContent');
+
+            modalContent.innerHTML = 
+                `<div class="flex space-x-8">
+                    <img src="${book.cover}" alt="${book.title}" class="w-1/3 rounded-xl shadow-lg object-cover">
+                    <div>
+                        <h2 class="text-3xl font-bold mb-4 text-gray-800">${book.title}</h2>
+                        <p class="text-gray-600 mb-2 text-lg"><strong>Autor:</strong> ${book.author}</p>
+                        <p class="text-gray-600 mb-4 text-lg"><strong>Gênero:</strong> ${book.genre}</p>
+                        <p class="text-gray-800 leading-relaxed mb-6">${book.description}</p>
+                        <div class="flex space-x-4">
+                            <button onclick="moveBook('lendo', ${book.id})" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md">Lendo</button>
+                            <button onclick="moveBook('lidos', ${book.id})" class="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md">Lido</button>
+                            <button onclick="moveBook('queroLer', ${book.id})" class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-md">Quero Ler</button>
+                        </div>
+                    </div>
+                </div>`;
+
+            modal.classList.remove('hidden');
+        }
+
+        document.getElementById('closeModal').addEventListener('click', () => {
+            document.getElementById('bookModal').classList.add('hidden');
+        });
+
+        searchInput.addEventListener('input', () => {
+            const activeTab = document.querySelector('.tab-btn.tab-active').dataset.tab;
+            renderBooks(activeTab);
+        });
+
+        renderBooks();
+    </script>
+    <!-- Footer -->
+<footer class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-12">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- Logo and Tagline -->
+            <div>
+                <div class="flex items-center space-x-3 mb-4">
+                    <i class="fas fa-book-open text-3xl"></i>
+                    <h3 class="text-2xl font-bold">Entrelinhas</h3>
+                </div>
+                <p class="text-white/80">Sua jornada literária, organizada e inspiradora.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-semibold text-lg mb-4">Navegação</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Todos os Livros</a></li>
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Meu Perfil</a></li>
+                    <li><a href="forum.html" class="hover:text-blue-200 transition-colors">Fórum</a></li>
+                    <li><a href="meta.html" class="hover:text-blue-200 transition-colors">Metas de Leitura</a></li>
+                </ul>
+            </div>
+
+            <!-- Community -->
+            <div>
+                <h4 class="font-semibold text-lg mb-4">Comunidade</h4>
+                <ul class="space-y-2">
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Ranking de Leitores</a></li>
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Desafios</a></li>
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Clube de Leitura</a></li>
+                    <li><a href="#" class="hover:text-blue-200 transition-colors">Eventos</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact and Social -->
+            <div>
+                <h4 class="font-semibold text-lg mb-4">Conecte-se</h4>
+                <div class="flex space-x-4 text-2xl mb-4">
+                    <a href="#" class="hover:text-blue-200 transition-colors"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="hover:text-blue-200 transition-colors"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="hover:text-blue-200 transition-colors"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-blue-200 transition-colors"><i class="fab fa-linkedin"></i></a>
+                </div>
+                <p class="text-white/80">Contato: entrelinhas_estantevirtual@gmail.com</p>
+                <p class="text-white/80">Tel: (35) 99173-6485</p>
+            </div>
+        </div>
+
+        <!-- Copyright -->
+        <div class="border-t border-white/20 mt-8 pt-6 text-center">
+            <p class="text-sm text-white/70">
+                © 2024 Entrelinhas. Todos os direitos reservados. 
+                <a href="#" class="underline hover:text-blue-200">Política de Privacidade</a> | 
+                <a href="#" class="underline hover:text-blue-200">Termos de Uso</a>
+            </p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ENTRELINHAS - Login e Registro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-container {
+            perspective: 1000px;
+        }
+
+        .login-card {
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .login-card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .login-front, .login-back {
+            backface-visibility: hidden;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .login-back {
+            transform: rotateY(180deg);
+        }
+
+        .gradient-text {
+            background: linear-gradient(45deg, #2e7d32, #43a047, #66bb6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .banner-gradient {
+            background: linear-gradient(to right, rgba(46, 125, 50, 0.9), rgba(67, 160, 71, 0.9));
+        }
+    </style>
+</head>
+<body class="bg-green-50 flex items-center justify-center min-h-screen">
+    <div class="container mx-auto px-4">
+        <div class="login-container relative w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden">
+            <div class="login-card relative w-full h-[600px]">
+                <!-- Login Front Side -->
+                <div class="login-front absolute inset-0 flex">
+                    <div class="w-1/2 banner-gradient flex flex-col justify-center p-12 text-white">
+                        <h2 class="text-4xl font-bold mb-6">Bem-vindo ao Entrelinhas</h2>
+                        <p class="text-xl mb-8">Sua jornada literária começa aqui. Descubra, leia e explore mundos infinitos!</p>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-book-open text-4xl"></i>
+                            <div>
+                                <h3 class="font-semibold">Biblioteca Virtual</h3>
+                                <p class="text-sm">+10.000 livros disponíveis</p>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <p>Não tem uma conta?</p>
+                            <button id="switchToRegister" class="mt-2 px-6 py-2 border-2 border-white rounded-full hover:bg-white hover:text-green-600 transition">
+                                Registre-se
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="w-1/2 flex items-center justify-center p-12">
+                        <form id="loginForm" class="w-full">
+                            <h2 class="text-3xl font-bold mb-6 gradient-text text-center">Login</h2>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Email</label>
+                                <input id="loginEmail" type="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="seu.email@exemplo.com" required>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-gray-700 mb-2">Senha</label>
+                                <input id="loginPassword" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="********" required>
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                                Entrar
+                            </button>
+                            
+                            <div class="text-center mt-4">
+                                <a href="#" class="text-sm text-green-600 hover:underline">Esqueceu sua senha?</a>
+                            </div>
+
+                            <div id="loginError" class="text-center mt-4 text-red-600"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Registration Back Side -->
+                <div class="login-back absolute inset-0 flex">
+                    <div class="w-1/2 banner-gradient flex flex-col justify-center p-12 text-white">
+                        <h2 class="text-4xl font-bold mb-6">Crie sua Conta</h2>
+                        <p class="text-xl mb-8">Junte-se à nossa comunidade de leitores e tenha acesso a uma biblioteca infinita!</p>
+                        <div class="flex items-center space-x-4">
+                            <i class="fas fa-users text-4xl"></i>
+                            <div>
+                                <h3 class="font-semibold">Benefícios</h3>
+                                <p class="text-sm">Recomendações personalizadas, listas de leitura e muito mais.</p>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <p>Já tem uma conta?</p>
+                            <button id="switchToLogin" class="mt-2 px-6 py-2 border-2 border-white rounded-full hover:bg-white hover:text-green-600 transition">
+                                Faça Login
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="w-1/2 flex items-center justify-center p-12">
+                        <form id="registerForm" class="w-full">
+                            <h2 class="text-3xl font-bold mb-6 gradient-text text-center">Registro</h2>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Nome Completo</label>
+                                <input id="registerName" type="text" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Seu nome completo" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Email</label>
+                                <input id="registerEmail" type="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="seu.email@exemplo.com" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="block text-gray-700 mb-2">Senha</label>
+                                <input id="registerPassword" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="********" required minlength="6">
+                            </div>
+                            
+                            <div class="mb-6">
+                                <label class="block text-gray-700 mb-2">Confirmar Senha</label>
+                                <input id="confirmPassword" type="password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="********" required minlength="6">
+                            </div>
+                            
+                            <div id="registerError" class="text-center mb-4 text-red-600"></div>
+                            
+                            <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition">
+                                Criar Conta
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Card Flip Logic
+        document.getElementById('switchToRegister').addEventListener('click', function() {
+            document.querySelector('.login-card').classList.add('flipped');
+        });
+
+        document.getElementById('switchToLogin').addEventListener('click', function() {
+            document.querySelector('.login-card').classList.remove('flipped');
+        });
+
+        // Registration Logic
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const registerError = document.getElementById('registerError');
+
+            // Validate password match
+            if (password !== confirmPassword) {
+                registerError.textContent = 'As senhas não coincidem';
+                return;
+            }
+
+            // Check if user already exists
+            const users = JSON.parse(localStorage.getItem('entrelinhasUsers') || '[]');
+            const existingUser = users.find(user => user.email === email);
+
+            if (existingUser) {
+                registerError.textContent = 'Este email já está cadastrado';
+                return;
+            }
+
+            // Create new user
+            const newUser = {
+                name,
+                email,
+                password
+            };
+
+            users.push(newUser);
+            localStorage.setItem('entrelinhasUsers', JSON.stringify(users));
+
+            // Clear form and switch to login
+            registerError.textContent = '';
+            document.querySelector('.login-card').classList.remove('flipped');
+            document.getElementById('registerForm').reset();
+            alert('Conta criada com sucesso!');
+        });
+
+        // Login Logic
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loginError = document.getElementById('loginError');
+
+            const users = JSON.parse(localStorage.getItem('entrelinhasUsers') || '[]');
+            const user = users.find(u => u.email === email && u.password === password);
+
+            if (user) {
+                // Store user info with login status
+                localStorage.setItem('currentUser', JSON.stringify({
+                    name: user.name,
+                    email: user.email
+                }));
+                
+                // Redirect to biblioteca.html
+                window.location.href = 'biblioteca.html';
+            } else {
+                loginError.textContent = 'Email ou senha incorretos';
+            }
+        });
+    </script>
+</body>
+</html>
